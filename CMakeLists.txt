@@ -1,13 +1,30 @@
-cmake_minimum_required (VERSION 3.10.2)
-project (ADS-4)
+set(header_path "${${PROJECT_NAME}_SOURCE_DIR}/include")
+set(header ${header_path}/alg.h)
+set(src alg.cpp)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -g")
+add_library(${PROJECT_NAME} SHARED
+  ${header}
+  ${src})
+  
+target_include_directories(${PROJECT_NAME}
+  PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
+         ${${PROJECT_NAME}_SOURCE_DIR}/include)
+target_link_libraries(${PROJECT_NAME}
+  pthread)
+
+add_executable(${PROJECT_NAME}.info main.cpp)
+target_include_directories(${PROJECT_NAME}.info
+  PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
+         ${${PROJECT_NAME}_SOURCE_DIR}/include)
+target_link_libraries(${PROJECT_NAME}.info
+  ${PROJECT_NAME})
 
 
-set(tool_dest "bin")
-set(lib_dest "lib")
-set(include_dest "include/")
-
-add_subdirectory(src)
-add_subdirectory(test)
+install(TARGETS ${PROJECT_NAME}
+        LIBRARY DESTINATION "${lib_dest}"
+    ARCHIVE DESTINATION "${lib_dest}"
+    COMPONENT library)
+install(TARGETS ${PROJECT_NAME}.info
+        RUNTIME DESTINATION "${tool_dest}"
+    COMPONENT library)
+install(FILES ${header} DESTINATION "${include_dest}")
